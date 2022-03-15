@@ -1,0 +1,21 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:h2:file:./data/demo
+    
+    username: sa
+    password: password
+    driverClassName: org.h2.Driver
+    tomcat:
+      max-wait: 20000
+      max-active: 500
+      max-idle: 400
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+    

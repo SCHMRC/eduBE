@@ -1,0 +1,18 @@
+package com.ms.edu.model;
+
+public enum MatterEnum  {
+	ITALIANO, 
+	STORIA, 
+	GEOGRAFIA, 
+	MATEMATICA,
+	SCIENZE,
+	TECNOLOGIA,
+	FRANCESE, 
+	INGLESE,
+	ARTE,
+	EdFISICA,
+	MUSICA,
+	RELIGIONE,
+	APPROFONDIMENTO
+
+}
