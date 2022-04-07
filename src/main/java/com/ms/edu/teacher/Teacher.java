@@ -33,7 +33,7 @@ import lombok.Data;
 //surname: cognome insegnate
 //matter: materia insegnata
 
-@Data
+//@Data
 @Entity
 @Table(name="TEACHER")
 
@@ -56,6 +56,19 @@ public class Teacher implements Serializable {
 
 	@Column(name = "surname")
 	private String surname;
+	
+
+	@Column(name = "email", nullable = true)
+	private String email;
+
+	@Column(name = "edumail", nullable = true)
+	private String edumail;
+	
+	@Column(name = "phone", nullable = true)
+	private String phone;
+
+	@Column(name = "adress", nullable = true)
+	private String adress;
 	
 	@ManyToMany
 	@JoinTable(
@@ -81,6 +94,14 @@ public class Teacher implements Serializable {
 		this.setName(name2);
 		this.setSurname(surname2);
 	}
+	
+	public Teacher(Long id, String name, String surname, List<Matter> matters) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.surname = surname;
+		this.matters = matters;
+	}
 
 
 	public Teacher(Long id, String name, String surname, List<Matter> matters, List<Classroom> classroom) {
@@ -91,7 +112,47 @@ public class Teacher implements Serializable {
 		this.matters = matters;
 		this.classroom = classroom;
 	}
+	
+	
 
+
+	public Teacher(Long id, String name, String surname, String email, String edumail, String phone, String adress,
+			List<Matter> matters, List<Classroom> classroom) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.surname = surname;
+		this.email = email;
+		this.edumail = edumail;
+		this.phone = phone;
+		this.adress = adress;
+		this.matters = matters;
+		this.classroom = classroom;
+	}
+	
+	
+	public Teacher(Long id, String name, String surname, String email, String edumail, String phone, String adress, List<Matter> matters) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.surname = surname;
+		this.email = email;
+		this.edumail = edumail;
+		this.phone = phone;
+		this.adress = adress;
+		this.matters = matters;
+	}
+	
+	public Teacher(Long id, String name, String surname, String email, String edumail, String phone, String adress) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.surname = surname;
+		this.email = email;
+		this.edumail = edumail;
+		this.phone = phone;
+		this.adress = adress;
+	}
 
 	public static long getSerialversionuid() {
 		return serialVersionUID;
@@ -145,6 +206,46 @@ public class Teacher implements Serializable {
 
 	public void setClassroom(List<Classroom> classroom) {
 		this.classroom = classroom;
+	}
+
+
+	public String getEmail() {
+		return email;
+	}
+
+
+	public String getEdumail() {
+		return edumail;
+	}
+
+
+	public String getPhone() {
+		return phone;
+	}
+
+
+	public String getAdress() {
+		return adress;
+	}
+
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+
+	public void setEdumail(String edumail) {
+		this.edumail = edumail;
+	}
+
+
+	public void setPhone(String phone) {
+		this.phone = phone;
+	}
+
+
+	public void setAdress(String adress) {
+		this.adress = adress;
 	}
 	
 

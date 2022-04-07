@@ -1,6 +1,7 @@
 package com.ms.edu.teacher;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.EmptyStackException;
 import java.util.List;
 
 import javax.transaction.Transactional;
@@ -42,7 +43,11 @@ public class ServiceTeacher{
 	
 	
 	public Teacher getTeacher(Long id) {
+		
 		List<ArrayList<Object>>  object = this.teacherRepo.getInfoTeacher(id);
+		if(object.size() == 0) {
+			object = this.teacherRepo.getInfoTeacherNullClass(id);
+		}
 		List<Classroom> classroom = new ArrayList<>();
 		List<Matter> matter = new ArrayList<>();
 		this.teacher = new Teacher();
@@ -52,29 +57,41 @@ public class ServiceTeacher{
 			BigInteger _id = (BigInteger) objTeach.get(0);
 			String _name = (String) objTeach.get(1);
 			String _surname = (String) objTeach.get(2);
+			String _adress = (String) objTeach.get(3);
+			String _edumail = (String) objTeach.get(4);
+			String _email = (String) objTeach.get(5);
+			String _phone = (String) objTeach.get(6);
 			if(teacher.getId() == null) {
-				this.teacher = new Teacher(_id.longValue(),_name,_surname);	
+				this.teacher = new Teacher(_id.longValue(),_name,_surname,_email,_edumail,_phone,_adress);	
 			}
-			String _matter = (String) objTeach.get(3);
+			String _matter = (String) objTeach.get(7);
 			Matter obj_matter = new Matter(_matter);
 			if(!matter.contains(obj_matter)) {
 				matter.add(obj_matter);	
-			}	
-			String _year = (String) objTeach.get(4);
-			String _classroom = (String) objTeach.get(5);
-			Classroom obj_classroom = new Classroom(_year, _classroom);
-			classroom.forEach(elm ->{
-				System.out.println(elm.getClass() ==  obj_classroom.getClass() && elm.getSection() ==  obj_classroom.getSection());
-				if(elm.getYear() ==  obj_classroom.getYear() && elm.getSection() ==  obj_classroom.getSection()){
-					this.flag = true;
-				}
-				});
-			if(!this.flag) {
-				classroom.add(obj_classroom);	
 			}
+			
+			if(objTeach.size() > 8 ) {
+				String _year = (String) objTeach.get(8);
+				String _classroom = (String) objTeach.get(9);
+					Classroom obj_classroom = new Classroom(_year, _classroom);
+					classroom.forEach(elm ->{
+						if(elm.getYear() ==  obj_classroom.getYear() && elm.getSection() ==  obj_classroom.getSection()){
+							this.flag = true;
+						}
+						});
+					if(!this.flag) {
+						classroom.add(obj_classroom);
+				}
+				
+			}
+			
+		
 		});
-		this.teacher = new Teacher(this.teacher.getId(),this.teacher.getName(),this.teacher.getSurname(),matter,classroom);
-		System.out.println(this.teacher);
+		if(classroom.isEmpty()) {
+			this.teacher = new Teacher(this.teacher.getId(),this.teacher.getName(),this.teacher.getSurname(),this.teacher.getEmail(),this.teacher.getEdumail(),this.teacher.getPhone(),this.teacher.getAdress(),matter);
+		}
+		else {this.teacher = new Teacher(this.teacher.getId(),this.teacher.getName(),this.teacher.getSurname(),this.teacher.getEmail(),this.teacher.getEdumail(),this.teacher.getPhone(),this.teacher.getAdress(),matter,classroom);}
+		
 		return teacher;
 	}
 	
@@ -120,45 +137,46 @@ public class ServiceTeacher{
 	}
 	
 	
-	public void saveAll(List<Teacher> teachers){
+	public boolean saveAll(List<Teacher> teachers){
+		this.flag = false;    
 		teachers.forEach(teach -> {
-			
 			// save the teacher if not exist
 			if(this.teacherRepo.isExistTeacher(teach.getName(),teach.getSurname()) == null) {
-				this.teacherRepo.saveTeacher(teach.getName(), teach.getSurname());
-			}
-			
-			
-			
-			
-			// save the matter if not exist
-			teach.getMatters().forEach(matter->{
-				if(!this.matterRepo.existsById(matter.getMatter())) {
-					this.matterRepo.saveMatter(matter.getMatter());
-				}
-				// save the relationship matter <-> teacher if not exist	
-				Teacher teacher = new Teacher();
-				teacher = this.teacherRepo.isExistTeacher(teach.getName(),teach.getSurname());
-				if(this.MTrepo.isInRelationshipTM(teacher.getId(), matter.getMatter()) == null) {
-					this.MTrepo.saveRelationshipTM(teacher.getId(), matter.getMatter());
-				}
+				this.teacherRepo.saveTeacher(teach.getName(), teach.getSurname(),teach.getAdress(),teach.getEdumail(),teach.getEmail(),teach.getPhone());
+				// save the matter if not exist
+				teach.getMatters().forEach(matter->{
+					System.out.println(matter);
+					if(!this.matterRepo.existsById(matter.getMatter())) {
+						this.matterRepo.saveMatter(matter.getMatter());
+					}
+					// save the relationship matter <-> teacher if not exist	
+					Teacher teacher = new Teacher();
+					teacher = this.teacherRepo.isExistTeacher(teach.getName(),teach.getSurname());
+					if(this.MTrepo.isInRelationshipTM(teacher.getId(), matter.getMatter()) == null) {
+						this.MTrepo.saveRelationshipTM(teacher.getId(), matter.getMatter());
+					}
+					
+				});
 				
-			});
-			
-			// save the class if not exist
-			teach.getClassroom().forEach(classroom -> {
-				ClassroomID classroomID = new ClassroomID(classroom.getYear(),classroom.getSection());
-				if(!this.classroomRepo.existsById(classroomID)) {
-					this.classroomRepo.saveClassroom(classroom.getYear(),classroom.getSection());	
-				}
 				// save the class if not exist
-				Teacher teacher = new Teacher();
-				teacher = this.teacherRepo.isExistTeacher(teach.getName(),teach.getSurname());
-				if(this.classTeachRepo.selectClassTeachRelation(teacher.getId(), classroom.getYear(), classroom.getSection()) == null) {
-				   this.classTeachRepo.saveClassTeachRelation(teacher.getId(), classroom.getYear(), classroom.getSection());
-				}	
-			});		
+				teach.getClassroom().forEach(classroom -> {
+					ClassroomID classroomID = new ClassroomID(classroom.getYear(),classroom.getSection());
+					if(!this.classroomRepo.existsById(classroomID)) {
+						this.classroomRepo.saveClassroom(classroom.getYear(),classroom.getSection());	
+					}
+					// save the class if not exist
+					Teacher teacher = new Teacher();
+					teacher = this.teacherRepo.isExistTeacher(teach.getName(),teach.getSurname());
+					if(this.classTeachRepo.selectClassTeachRelation(teacher.getId(), classroom.getYear(), classroom.getSection()) == null) {
+					   this.classTeachRepo.saveClassTeachRelation(teacher.getId(), classroom.getYear(), classroom.getSection());
+					}	
+				});
+					
+			
+			}
+			else {this.flag=true;}					
 		});
+		return this.flag;
 		
 	}
 	
