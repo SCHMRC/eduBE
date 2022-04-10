@@ -16,7 +16,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
+import com.ms.edu.matter.ServiceResponce;
 import com.ms.edu.model.InfoMsg;
 import com.ms.edu.model.MatterRepo;
 
@@ -26,8 +28,10 @@ import com.ms.edu.model.MatterRepo;
 @RestController
 @RequestMapping("/api/teacher")
 public class TeacherController {
-
 	
+	@Autowired
+	private ServiceResponce serviceResponce;
+
 	
 	@Autowired
 	private TeacherRepository teacherRepo;
@@ -45,6 +49,11 @@ public class TeacherController {
 
 	@GetMapping()
 	public List<Teacher> getTeachers(){
+		/*temporaneo collegamentoal server python*/
+		String uri = "http://127.0.0.1:8000";
+		RestTemplate restTemplate = new RestTemplate();
+	    String result = restTemplate.getForObject(uri, String.class);
+	    /**/
 		return this.serviceTeacher.getAllTeachers();	
 	}
 	
@@ -52,40 +61,19 @@ public class TeacherController {
 	public Teacher getTeacher(@PathVariable String teacherId){
 		return this.serviceTeacher.getTeacher(Long.parseLong(teacherId));	
 	}
-	
-	/*
-	 * insert one teacher in the db
-	 * */
-	
-	@PostMapping()
-	public Teacher postTeacher(@RequestBody Teacher teacher) {
-		return this.teacherRepo.save(teacher);
 		
-	}
-	
 	/*
 	 * insert more teacher in the db
 	 * */
 
 	@PostMapping(path = "/teachers")
 	public ResponseEntity<InfoMsg> postTeachers(@RequestBody ArrayList<Teacher> teachers) {
-		//teachers.forEach((teach)-> {this.teacherRepo.save(teach);});
-		/*teachers.forEach(teac -> {
-			this.teacherRepo.saveTeacher(teac.getName(), teac.getSurname());
-			teac.getMatters().forEach(matter->{
-				this.matterRepo.saveMatter(matter.getMatter());
-				
-			});
-			}
-		);*/
-		if(this.serviceTeacher.saveAll(teachers)) {
-			return new ResponseEntity<InfoMsg>(new InfoMsg(LocalDate.now(), 
-					"Teacher is already present!"), HttpStatus.BAD_REQUEST);
-		}else {
-			return new ResponseEntity<InfoMsg>(new InfoMsg(LocalDate.now(), 
-					"Success"), HttpStatus.OK);
-		}
-
+		return serviceResponce.responce(!this.serviceTeacher.saveAll(teachers));
+	}
+	
+	@PostMapping(path = "/teachers/remove")
+	public ResponseEntity<InfoMsg> removeTeachers(@RequestBody ArrayList<Teacher> teachers) {
+		return serviceResponce.responce(this.serviceTeacher.remove(teachers));
 	}
 
 }
