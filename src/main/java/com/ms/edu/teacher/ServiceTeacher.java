@@ -18,6 +18,7 @@ import com.ms.edu.classroom.ClassroomID;
 import com.ms.edu.classroom.ClassroomRepo;
 import com.ms.edu.model.Matter;
 import com.ms.edu.model.MatterRepo;
+import com.ms.edu.relationshipRepository.ClassTeachID;
 import com.ms.edu.relationshipRepository.ClassTeachRepository;
 import com.ms.edu.relationshipRepository.MatterTeachRepository;
 
@@ -124,8 +125,8 @@ public class ServiceTeacher{
 		object.forEach(objTeach->{
 			this.flag = false;
 			BigInteger id = (BigInteger) objTeach.get(0);
-			String name = (String) objTeach.get(1);
-			String surname = (String) objTeach.get(2);
+			String name = (String) objTeach.get(4);
+			String surname = (String) objTeach.get(6);
 			Teacher teacher = new Teacher(id.longValue(),name,surname);
 			teachers.forEach(element ->{
 				if(element.getId() == teacher.getId()){
@@ -143,39 +144,54 @@ public class ServiceTeacher{
 			// save the teacher if not exist
 			if(this.teacherRepo.isExistTeacher(teach.getName(),teach.getSurname()) == null) {
 				this.teacherRepo.saveTeacher(teach.getName(), teach.getSurname(),teach.getAdress(),teach.getEdumail(),teach.getEmail(),teach.getPhone());
-				// save the matter if not exist
-				teach.getMatters().forEach(matter->{
-					System.out.println(matter);
-					if(!this.matterRepo.existsById(matter.getMatter())) {
-						this.matterRepo.saveMatter(matter.getMatter());
-					}
-					// save the relationship matter <-> teacher if not exist	
-					Teacher teacher = new Teacher();
-					teacher = this.teacherRepo.isExistTeacher(teach.getName(),teach.getSurname());
-					if(this.MTrepo.isInRelationshipTM(teacher.getId(), matter.getMatter()) == null) {
-						this.MTrepo.saveRelationshipTM(teacher.getId(), matter.getMatter());
-					}
-					
-				});
-				
-				// save the class if not exist
-				teach.getClassroom().forEach(classroom -> {
-					ClassroomID classroomID = new ClassroomID(classroom.getYear(),classroom.getSection());
-					if(!this.classroomRepo.existsById(classroomID)) {
-						this.classroomRepo.saveClassroom(classroom.getYear(),classroom.getSection());	
-					}
-					// save the class if not exist
-					Teacher teacher = new Teacher();
-					teacher = this.teacherRepo.isExistTeacher(teach.getName(),teach.getSurname());
-					if(this.classTeachRepo.selectClassTeachRelation(teacher.getId(), classroom.getYear(), classroom.getSection()) == null) {
-					   this.classTeachRepo.saveClassTeachRelation(teacher.getId(), classroom.getYear(), classroom.getSection());
-					}	
-				});
-					
-			
 			}
-			else {this.flag=true;}					
+			// save the matter if not exist
+			teach.getMatters().forEach(matter->{
+				if(!this.matterRepo.existsById(matter.getMatter())) {
+					this.matterRepo.saveMatter(matter.getMatter());
+				}
+				// save the relationship matter <-> teacher if not exist	
+				Teacher teacher = new Teacher();
+				teacher = this.teacherRepo.isExistTeacher(teach.getName(),teach.getSurname());
+				if(this.MTrepo.isInRelationshipTM(teacher.getId(), matter.getMatter()) == null) {
+					this.MTrepo.saveRelationshipTM(teacher.getId(), matter.getMatter());
+				}
+				
+			});
+			
+			// save the class if not exist
+			teach.getClassroom().forEach(classroom -> {
+				ClassroomID classroomID = new ClassroomID(classroom.getYear(),classroom.getSection());
+				if(!this.classroomRepo.existsById(classroomID)) {
+					this.classroomRepo.saveClassroom(classroom.getYear(),classroom.getSection());	
+				}
+				// save the class if not exist
+				Teacher teacher = new Teacher();
+				teacher = this.teacherRepo.isExistTeacher(teach.getName(),teach.getSurname());
+				if(this.classTeachRepo.selectClassTeachRelation(teacher.getId(), classroom.getYear(), classroom.getSection()) == null) {
+				   this.classTeachRepo.saveClassTeachRelation(teacher.getId(), classroom.getYear(), classroom.getSection());
+				}	
+			});
+									
 		});
+		return this.flag;
+		
+	}
+	
+	public boolean remove(List<Teacher> teachers) {
+		this.flag = false;
+		teachers.forEach(teach ->{
+			long id = teach.getId();
+			Integer x = this.teacherRepo.deleteRelTeacherClass(id);
+			Integer y = this.teacherRepo.deleteRelTeacherMatter(id);
+			if(x>=0 && y>=0) {
+				this.teacherRepo.deleteById(id);
+				this.flag = true;
+			}	
+		});
+		//long id = 10;
+		//ClassTeachID idT = new ClassTeachID(id,"PRIMA","A");
+		//this.classTeachRepo.deleteById(idT);
 		return this.flag;
 		
 	}
