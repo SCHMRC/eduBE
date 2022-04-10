@@ -58,6 +58,15 @@ public interface TeacherRepository extends JpaRepository<Teacher, Long>  {
     @Transactional
     List<ArrayList<Object>> getAllInfoTeacher();
 	
+	@Modifying
+	@Query(value =  "DELETE FROM CLASS_TEACH WHERE TEACHER_ID = :id",nativeQuery = true)
+    @Transactional
+	Integer deleteRelTeacherClass(@Param("id") Long id);
+	
+	@Modifying
+	@Query(value =  "DELETE FROM MATTER_TEACH WHERE TEACHER_ID = :id",nativeQuery = true)
+    @Transactional
+    Integer deleteRelTeacherMatter(@Param("id") Long id);
 	
 	
 }

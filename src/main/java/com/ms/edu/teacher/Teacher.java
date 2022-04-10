@@ -9,6 +9,7 @@ import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -70,14 +71,14 @@ public class Teacher implements Serializable {
 	@Column(name = "adress", nullable = true)
 	private String adress;
 	
-	@ManyToMany
+	@ManyToMany(cascade=CascadeType.ALL, fetch = FetchType.LAZY)
 	@JoinTable(
 			  name = "MATTER_TEACH", 
 			  joinColumns = @JoinColumn(name = "teacher_id"), 
 			  inverseJoinColumns = @JoinColumn(name = "matter_id"))
     List<Matter> matters = new ArrayList<>();
 	
-	@ManyToMany
+	@ManyToMany(cascade=CascadeType.ALL, fetch = FetchType.LAZY)
 	@Nullable
 	@JoinTable(
 			  name = "CLASS_TEACH", 

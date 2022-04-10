@@ -18,6 +18,7 @@ import com.ms.edu.classroom.ClassroomID;
 import com.ms.edu.classroom.ClassroomRepo;
 import com.ms.edu.model.Matter;
 import com.ms.edu.model.MatterRepo;
+import com.ms.edu.relationshipRepository.ClassTeachID;
 import com.ms.edu.relationshipRepository.ClassTeachRepository;
 import com.ms.edu.relationshipRepository.MatterTeachRepository;
 
@@ -178,7 +179,20 @@ public class ServiceTeacher{
 	}
 	
 	public boolean remove(List<Teacher> teachers) {
-		return true;
+		this.flag = false;
+		teachers.forEach(teach ->{
+			long id = teach.getId();
+			Integer x = this.teacherRepo.deleteRelTeacherClass(id);
+			Integer y = this.teacherRepo.deleteRelTeacherMatter(id);
+			if(x>=0 && y>=0) {
+				this.teacherRepo.deleteById(id);
+				this.flag = true;
+			}	
+		});
+		//long id = 10;
+		//ClassTeachID idT = new ClassTeachID(id,"PRIMA","A");
+		//this.classTeachRepo.deleteById(idT);
+		return this.flag;
 		
 	}
 	
