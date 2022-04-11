@@ -17,34 +17,49 @@ import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.ms.edu.model.Student;
 import com.ms.edu.model.YearEnum;
 import com.ms.edu.teacher.Teacher;
 import com.sun.istack.Nullable;
 
 import lombok.Data;
 
-@Table(name="CLASS")
+
 @Entity
+@Table(name="CLASS")
 @IdClass(ClassroomID.class)
 
 public class Classroom {
 	
-	@Column(name = "year")
 	@Id
+	@Column(name = "year")
 	private String a_year;
 	
-	@Column(name = "section")
 	@Id
+	@Column(name = "section")
 	private String b_section;
 	
+	
+	@OneToMany
+	@JoinTable(
+			  name = "STUDENT_CLASS_JOIN_TABLE",
+	          joinColumns = {@JoinColumn(name = "yearFK", referencedColumnName = "year"), @JoinColumn(name = "sectionFK", referencedColumnName = "section")},
+	          inverseJoinColumns = {@JoinColumn(name = "idFK", referencedColumnName = "id")}
+	  )
+	List<Student> students = new ArrayList<>();
+	
 
-	
-	
-	
 	
 	@ManyToMany(mappedBy = "classroom", fetch = FetchType.LAZY)
 	@Nullable

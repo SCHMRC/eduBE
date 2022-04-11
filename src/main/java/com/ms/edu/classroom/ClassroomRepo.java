@@ -1,5 +1,7 @@
 package com.ms.edu.classroom;
 
+import java.util.List;
+
 import javax.transaction.Transactional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,4 +18,8 @@ public interface ClassroomRepo extends JpaRepository<Classroom, ClassroomID>{
 	void saveClassroom(@Param("year") String year, @Param("section") String section);
 	
 
+
+	@Query(value =  "SELECT DISTINCT SECTION FROM CLASS ",nativeQuery = true)
+    @Transactional
+	List<String> getSection();
 }
