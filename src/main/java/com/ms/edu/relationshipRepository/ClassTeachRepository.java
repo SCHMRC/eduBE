@@ -19,5 +19,9 @@ public interface ClassTeachRepository extends JpaRepository<ClassTeach, ClassTea
 	@Query(value = "SELECT * FROM CLASS_TEACH WHERE teacher_id = :teacherId AND year_id = :yearId AND section_id = :sectionId", nativeQuery = true)
 	@Transactional
 	ClassTeach selectClassTeachRelation(@Param("teacherId") Long teacher_id,@Param("yearId") String year_id,@Param("sectionId") String section_id);
-
+	
+	@Modifying
+	@Query(value = "DELETE FROM CLASS_TEACH WHERE YEAR_ID = :yearId AND SECTION_ID = :sectionId", nativeQuery = true)
+	@Transactional
+	void removeClassTeachRelation(@Param("yearId") String year_id,@Param("sectionId") String section_id);
 }
